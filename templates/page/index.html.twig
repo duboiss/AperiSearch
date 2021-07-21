@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/templates/basic_search.css" />
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper_container">
+        <div class="container">
+            <h1>ApériSearch</h1>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div id="searchbox"></div>
+        <div id="hits"></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% verbatim %}
+        <script src="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch@0.3.2/dist/instant-meilisearch.umd.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
+        <script>
+            const search = instantsearch({
+                indexName: 'users',
+                searchClient: instantMeiliSearch('http://localhost:7700'),
+            });
+
+            search.addWidgets([
+                instantsearch.widgets.searchBox({
+                    container: '#searchbox',
+                    placeholder: 'Search for users',
+                }),
+                instantsearch.widgets.configure({ hitsPerPage: 8 }),
+                instantsearch.widgets.hits({
+                    container: '#hits',
+                    templates: {
+                        item: `
+                          <div>
+                          <div class="hit-name">
+                              {{#helpers.highlight}}{ "attribute": "pseudo" }{{/helpers.highlight}}
+                          </div>
+                          </div>
+                      `
+                    },
+                })
+            ]);
+            search.start();
+        </script>
+    {% endverbatim %}
+{% endblock %}
